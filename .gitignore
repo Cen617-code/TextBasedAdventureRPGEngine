@@ -1,2 +1,4 @@
 .vscode
-Code/a.out
+*.out
+*.o
+*.exe

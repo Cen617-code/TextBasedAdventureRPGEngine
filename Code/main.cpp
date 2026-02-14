@@ -1,31 +1,38 @@
 #include "Room.hpp"
 #include <iostream>
 #include <memory>
+#include <ostream>
 
 int main() {
-  auto livingRoom = std::make_shared<Room>("客厅", "位于中心", 100, 100);
-  auto ARoom = std::make_shared<Room>("房间 A", "位于客厅北边", 100, 50);
+    auto livingRoom = std::make_shared<Room>("客厅", "位于中心", 100, 100);
+    auto ARoom = std::make_shared<Room>("房间 A", "位于客厅北边", 100, 50);
 
-  livingRoom->setExit("north", ARoom);
-  // 反向连接
-  ARoom->setExit("south", livingRoom);
+    livingRoom->setExit("north", ARoom);
+    // 反向连接
+    ARoom->setExit("south", livingRoom);
 
-  std::cout << "=== " << livingRoom->getName() << " ===" << std::endl;
-  std::cout << livingRoom->getDescribe() << std::endl;
-  std::cout << "尺寸" << livingRoom->getSize().first << " * "
-            << livingRoom->getSize().second << std::endl;
+    std::shared_ptr<Room> currentRoom = livingRoom;
 
-  // 测试新增加的 printExits 功能
-  livingRoom->printExits();
+    while (true) {
+        //显示当前房间信息
+        currentRoom->printInfo();
 
-  auto northRoom = livingRoom->getExit("north");
-  if (northRoom) {
-    std::cout << "北边出口指向" << northRoom->getName() << std::endl;
-  }
+        std::cout << "> ";
+        std::string command;
+        std::cin >> command;
 
-  auto southRoom = ARoom->getExit("south");
-  if (southRoom) {
-    std::cout << "南边出口指向" << southRoom->getName() << std::endl;
-  }
+        if (command == "quit") {
+            std::cout << "再见！" << std::endl;
+            break;  
+        }
+        auto nextRoom = currentRoom->getExit(command);
+        if(nextRoom){
+            currentRoom = nextRoom;
+            std::cout << "你向" << command << "移动。\n" << std::endl;
+        }else{
+            std::cout << "那个方向没有路。\n" << std::endl;
+        }
+    }
+
   return 0;
 }

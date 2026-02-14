@@ -168,3 +168,87 @@ if (northRoom) {    // 检查智能指针是否非空
 - [√] 完成 `setExit` 核心任务
 
 **里程碑**：RPG 引擎的第一步 - 场景建模 - 已完成基础框架！🎉
+
+---
+---
+
+# 学习笔记 - RPG 引擎开发（交互循环与模块化）
+
+## 📅 日期：2026-02-14
+
+## 🎯 今日目标
+实现游戏的主循环机制，让玩家可以在房间之间自由移动，并对代码进行模块化重构。
+
+---
+
+## 📚 核心知识点
+
+### 1. 模块化编程 (Modular Programming)
+- **头文件 (.hpp)**：放置类的声明（Declaration）。充当"接口"，告诉使用者这个类有哪些功能。
+  - 包含：成员变量定义、方法原型、必要的 `#include`。
+  - 防卫式声明：`#ifndef ROOM_HPP ... #endif` 防止头文件被重复包含。
+- **源文件 (.cpp)**：放置类的实现（Implementation）。
+  - 包含：具体函数的代码逻辑。
+  - 需要 `#include "Room.hpp"`。
+- **主程序 (main.cpp)**：只负责业务逻辑流程，代码变得非常整洁。
+- **编译方法**：需要同时编译所有源文件：
+  ```bash
+  clang++ -std=c++26 Code/main.cpp Code/Room.cpp -o rpg_engine
+  ```
+
+### 2. 双向连接 (Bidirectional Linking)
+- 房间之间的连接通常是双向的。
+- **实现**：
+  ```cpp
+  livingRoom->setExit("north", ARoom);
+  ARoom->setExit("south", livingRoom); // 手动建立反向连接
+  ```
+
+### 3. 游戏循环 (Game Loop)
+- RPG 游戏的核心是一个无限循环：**显示信息 -> 等待输入 -> 处理指令 -> 更新状态**。
+- **实现结构**：
+  ```cpp
+  while (true) {
+      currentRoom->printInfo(); // 1. 显示
+      std::cin >> command;      // 2. 输入
+      if (command == "quit") break; // 3. 退出条件
+      // ... 处理移动 ...      // 4. 更新状态
+  }
+  ```
+
+### 4. 玩家状态追踪
+- 使用一个指针指向当前所在的房间。
+- `std::shared_ptr<Room> currentRoom = livingRoom;`
+-移动就是更新这个指针：`currentRoom = nextRoom;`
+
+---
+
+## 🔨 代码架构演进
+
+### 文件结构
+- `Code/Room.hpp`: Room 类声明
+- `Code/Room.cpp`: Room 类实现
+- `Code/main.cpp`: 游戏入口与主循环
+
+### Room 类新功能
+- `printExits()`: 遍历 map 打印所有可用出口
+- `printInfo()`: 封装了名称、描述和出口的打印逻辑
+
+---
+
+## 🚀 下一步计划
+
+- [ ] **指令解析器升级**：目前只能处理单词，无法处理 "go north" 这种带空格的指令。
+- [ ] **背包系统**：添加 `Item` 类，通过 `pick` 指令捡起物品。
+- [ ] **地图构建器**：将硬编码的房间创建逻辑（`make_shared`...）移到一个单独的 `Map` 类或函数中。
+
+---
+
+## ✅ 今日成就
+
+- [√] 成功将代码拆分为模块化结构 (.hpp/.cpp)
+- [√] 实现了双向房间移动逻辑
+- [√] 完成了游戏主循环 (Game Loop)
+- [√] 修复了单向移动的限制，现在可以来回走动了！
+
+**里程碑**：我们的 RPG 引擎已经“动”起来了！它不再是静态的数据，而是一个可交互的世界。🌍
