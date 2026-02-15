@@ -35,11 +35,26 @@ void Room::printExits() const {
   std::cout << std::endl;
 }
 
+void Room::addItem(const Item &item) { items.push_back(item); }
+
+void Room::lookItem() const {
+  if (!items.empty()) {
+    std::cout << "你看到了: ";
+    for (const auto &item : items) {
+      std::cout << item.getName() << " ";
+    }
+    std::cout << std::endl;
+  } else {
+    std::cout << "这里空荡荡的，什么也没有。" << std::endl;
+  }
+}
+
 void Room::printInfo() const {
   std::cout << "=== " << name << " ===" << std::endl;
   std::cout << describe << std::endl;
   // 尺寸信息可选，如果觉得太技术化可以注释掉
   // std::cout << "尺寸: " << length << " x " << width << std::endl;
+  lookItem();
   printExits();
   std::cout << "------------------------" << std::endl;
 }
