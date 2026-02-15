@@ -4,6 +4,7 @@
 #include "Item.hpp"
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -25,6 +26,9 @@ public:
   // 添加物品
   void addItem(const Item &item);
 
+  // 移除并返回物品（如果存在）
+  std::optional<Item> popItem(std::string itemName);
+
   // 设置出口
   void setExit(std::string direction, std::shared_ptr<Room> nextRoom);
 
@@ -45,5 +49,4 @@ public:
   void lookItem() const;
 };
 
-  
 #endif // ROOM_HPP

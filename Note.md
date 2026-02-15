@@ -252,3 +252,95 @@ if (northRoom) {    // 检查智能指针是否非空
 - [√] 修复了单向移动的限制，现在可以来回走动了！
 
 **里程碑**：我们的 RPG 引擎已经“动”起来了！它不再是静态的数据，而是一个可交互的世界。🌍
+
+---
+---
+
+# 学习笔记 - RPG 引擎开发（物品系统与高级交互）
+
+## 📅 日期：2026-02-15
+
+## 🎯 今日目标
+实现物品系统（Item System），让玩家能够查看、捡起物品，并升级指令解析器以支持更自然的语言交互（如 `pick sword`）。
+
+---
+
+## 📚 核心知识点
+
+### 1. 物品系统的架构
+- **`Item` 类**：封装物品的基本属性（名称、描述）。
+- **容器的使用**：
+  - `Room` 类中使用 `std::vector<Item>` 存储房间内的物品。
+  - `main` 函数中使用 `std::vector<Item>` 作为玩家的背包（Inventory）。
+
+### 2. 交互逻辑：捡起物品 (Pick Up)
+- **查找与移除**：
+  - 在 `Room` 中查找指定名称的物品。
+  - 使用 `vector::erase` 配合迭代器移除物品。
+- **所有权转移**：物品对象从房间的 vector 复制/移动到玩家背包的 vector 中。
+
+### 3. C++17 `std::optional`
+- **用途**：用于处理“可能失败”的返回值（如没找到物品）。
+- **用法**：
+  - 返回 `std::nullopt` 表示无值。
+  - 使用 `.has_value()` 检查是否有值。
+  - 使用 `*` 解引用获取值。
+
+### 4. 字符串流与解析 (`std::stringstream`)
+- **功能**：将整行输入字符串视为流，方便按空格分割单词。
+- **应用**：将 "pick rusty sword" 解析为 `command="pick"` 和 `argument="rusty sword"`。
+
+---
+
+## 🔨 实现细节回顾
+
+### 1. 物品类定义 (Item.hpp)
+简单的名称和描述封装。
+
+### 2. 房间中的物品逻辑 (Room.cpp)
+```cpp
+// 移除并返回物品
+std::optional<Item> Room::popItem(std::string itemName) {
+    for (auto it = items.begin(); it != items.end(); ++it) {
+        if (it->getName() == itemName) {
+            Item found = *it;
+            items.erase(it); // 关键：从容器中删除
+            return found;    // 返回副本
+        }
+    }
+    return std::nullopt;
+}
+```
+
+### 3. 指令解析 (main.cpp)
+```cpp
+// 使用 getline 读取整行
+std::getline(std::cin, commandLine);
+// 自定义 splitCommand 函数处理 "pick xxx"
+auto [action, target] = splitCommand(commandLine);
+```
+
+### 4. 游戏循环中的处理
+- **look**: 调用 `currentRoom->lookItem()` 显示物品。
+- **pick**: 调用 `popItem` 尝试获取，成功则加入 `inventory`。
+- **go**: 处理 `go north` 这种动词+名词的移动指令。
+
+---
+
+## 🚀 下一步计划
+
+- [ ] **背包查看**：实现 `inventory` 指令，列出背包里的物品。
+- [ ] **物品使用**：实现 `use key` 之类的逻辑（需要结合锁住的门）。
+- [ ] **地图构建器**：目前的地图创建还在 `main` 函数里，代码有点乱。
+
+---
+
+## ✅ 今日成就
+
+- [√] 创建了 `Item` 类并集成到 `Room` 中
+- [√] 实现了 `look` 指令查看房间物品
+- [√] 实现了 `pick` 指令捡起物品到背包
+- [√] 实现了 `go` 指令支持（如 `go north`）
+- [√] 掌握了 `std::optional` 和 `stringstream` 的基本用法
+
+**里程碑**：我们的 RPG 引擎现在支持物品交互了！这是游戏性的一大飞跃。🎒⚔️
