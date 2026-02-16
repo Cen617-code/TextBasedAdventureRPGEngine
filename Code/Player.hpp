@@ -11,7 +11,7 @@ class Player {
 private:
   std::string name;
   std::shared_ptr<Room> currentRoom;
-  std::vector<Item> inventory;
+  std::vector<std::shared_ptr<Item>> inventory;
 
 public:
   Player(std::string name_, std::shared_ptr<Room> startingRoom);

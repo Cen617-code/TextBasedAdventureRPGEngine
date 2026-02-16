@@ -1,6 +1,6 @@
 #include "Player.hpp"
 #include <iostream>
-#include <algorithm>
+
 
 Player::Player(std::string name_, std::shared_ptr<Room> startingRoom)
     : name(name_), currentRoom(startingRoom) {}
@@ -19,8 +19,8 @@ void Player::move(std::string direction) {
 
 void Player::pickItem(std::string itemName) {
   auto poppedItem = currentRoom->popItem(itemName);
-  if (poppedItem.has_value()) {
-    inventory.push_back(*poppedItem);
+  if (poppedItem) {
+    inventory.push_back(poppedItem);
     std::cout << "你捡起了 " << itemName << "。" << std::endl;
   } else {
     std::cout << "这里没有 " << itemName << "。" << std::endl;
@@ -29,8 +29,8 @@ void Player::pickItem(std::string itemName) {
 
 void Player::dropItem(std::string itemName) {
    for (auto it = inventory.begin(); it != inventory.end(); ++it) {
-    if (it->getName() == itemName) {
-      Item found = *it;
+    if ((*it)->getName() == itemName) {
+      auto found = *it;
       inventory.erase(it); // 从背包移除
       currentRoom->addItem(found);
       std::cout << "你丢下了" << itemName << std::endl;
@@ -48,7 +48,7 @@ void Player::showInventory() const {
 
   std::cout << "=== 背包 (" << inventory.size() << ") ===" << std::endl;
   for (const auto &item : inventory) {
-    std::cout << "- " << item.getName() << ": " << item.getDescription()
+    std::cout << "- " << item->getName() << ": " << item->getDescription()
               << std::endl;
   }
   std::cout << "==================" << std::endl;

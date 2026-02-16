@@ -4,7 +4,6 @@
 #include "Item.hpp"
 #include <map>
 #include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -17,17 +16,17 @@ private:
   // 存储出口的映射：方向 -> 房间指针
   std::map<std::string, std::shared_ptr<Room>> exits;
   // 存储房间物品
-  std::vector<Item> items;
+  std::vector<std::shared_ptr<Item>> items;
 
 public:
   // 构造函数
   Room(std::string name_, std::string describe_, int length_, int width_);
 
   // 添加物品
-  void addItem(const Item &item);
+  void addItem(std::shared_ptr<Item> item);
 
   // 移除并返回物品（如果存在）
-  std::optional<Item> popItem(std::string itemName);
+  std::shared_ptr<Item> popItem(std::string itemName);
 
   // 设置出口
   void setExit(std::string direction, std::shared_ptr<Room> nextRoom);

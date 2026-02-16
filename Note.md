@@ -344,3 +344,97 @@ auto [action, target] = splitCommand(commandLine);
 - [√] 掌握了 `std::optional` 和 `stringstream` 的基本用法
 
 **里程碑**：我们的 RPG 引擎现在支持物品交互了！这是游戏性的一大飞跃。🎒⚔️
+
+---
+---
+
+# 学习笔记 - RPG 引擎开发（玩家类与多态物品）
+
+## 📅 日期：2026-02-17
+
+## 🎯 今日目标
+1. 封装 `Player` 类，统一管理玩家状态（位置、背包）。
+2. 实现物品的 `drop`（丢弃）指令。
+3. 利用 **多态 (Polymorphism)** 重构物品系统，支持不同类型的物品（武器、消耗品）。
+
+---
+
+## 📚 核心知识点
+
+### 1. Player 类的封装
+- **目的**：将散落在 `main` 函数中的 `currentRoom` 和 `inventory` 统一管理，符合 OOP 的**单一职责原则**。
+- **结构**：
+  ```cpp
+  class Player {
+      std::shared_ptr<Room> currentRoom;
+      std::vector<std::shared_ptr<Item>> inventory;
+  public:
+      void move(string dir);
+      void pickItem(string name);
+      void dropItem(string name);
+  };
+  ```
+
+### 2. 抽象基类与纯虚函数
+- **抽象基类**：`Item` 类不能被直接实例化。
+- **纯虚函数**：`virtual void use(Player* player) = 0;`
+  - 强制子类（如 `Weapon`）必须实现具体的 `use` 逻辑。
+- **虚析构函数**：`virtual ~Item() = default;`
+  - **重要**：当通过基类指针删除派生类对象时，确保调用正确的析构函数，防止内存泄漏。
+
+### 3. 多态容器
+- **问题**：`std::vector<Item>` 无法存储子类对象（会发生 Object Slicing 对象切片）。
+- **解决**：使用智能指针容器 `std::vector<std::shared_ptr<Item>>`。
+- **访问**：使用 **箭头运算符** `->` 或 **双重解引用** `(*it)->getName()`。
+
+### 4. Makefile 的使用
+- **作用**：自动化编译流程，避免每次手动输入长命令。
+- **通配符**：`SRCS = $(wildcard Code/*.cpp)` 自动抓取源文件。
+- **伪目标**：`.PHONY: clean` 防止与同名文件冲突。
+
+---
+
+## 🔨 重构之路
+
+### 1. 从 Item 到 shared_ptr<Item>
+这是一个巨大的破坏性变更，涉及所有引用 `Item` 的地方：
+- `Room::addItem(const Item&)` -> `Room::addItem(shared_ptr<Item>)`
+- `Room::popItem` 返回值从 `optional<Item>` -> `shared_ptr<Item>`
+- `Player::inventory` 从 `vector<Item>` -> `vector<shared_ptr<Item>>`
+
+### 2. drop 指令的陷阱
+在遍历并删除 vector 元素时：
+```cpp
+for (auto it = inventory.begin(); it != inventory.end(); ++it) {
+    if ((*it)->getName() == target) {
+        // ...逻辑...
+        inventory.erase(it); // ⚠️ 删除后迭代器失效
+        return; // ✅ 必须立即返回，或更新迭代器
+    }
+}
+```
+
+### 3. 构造函数的参数匹配
+- `make_shared<Weapon>(...)` 必须严格匹配 `Weapon` 的构造函数签名。
+- 如果构造函数是 `(string, string, int)`，调用时少传一个 `int` 就会报晦涩的模板错误 (`no matching function for call to __construct_at`)。
+
+---
+
+## 🚀 下一步计划
+
+- [ ] **完善 Use 指令**：让玩家可以真正使用物品（如喝药水回血）。
+- [ ] **状态系统**：为 Player 添加 `HP`（生命值）和 `Strength`（攻击力）。
+- [ ] **复杂的地图**：使用 XML/JSON 或专门的 Map 类来构建更大的世界。
+- [ ] **战斗系统**：添加 Enemy 类，让 `Weapon` 真正派上用场。
+
+---
+
+## ✅ 今日成就
+
+- [√] 成功封装 `Player` 类，main 函数变得极其清爽
+- [√] 编写了通用的 `Makefile`
+- [√] 实现了 `drop` 指令
+- [√] 重构物品系统为 **多态指针** 存储 (`vector<shared_ptr<Item>>`)
+- [√] 创建了 `Weapon` 和 `Consumable` 子类
+
+**里程碑**：我们的代码架构已经达到了专业 C++ 项目的标准！虽然今天被链接错误和模板报错折磨了一会儿，但我们成功克服了它们！🛡️

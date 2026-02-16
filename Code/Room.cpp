@@ -1,6 +1,8 @@
 #include "Room.hpp"
+#include "Item.hpp"
 #include <iostream>
-#include <optional>
+#include <memory>
+
 
 Room::Room(std::string name_, std::string describe_, int length_, int width_) {
   this->name = name_;
@@ -36,24 +38,24 @@ void Room::printExits() const {
   std::cout << std::endl;
 }
 
-void Room::addItem(const Item &item) { items.push_back(item); }
+void Room::addItem(std::shared_ptr<Item> item) { items.push_back(item); }
 
-std::optional<Item> Room::popItem(std::string itemName) {
+std::shared_ptr<Item> Room::popItem(std::string itemName) {
   for (auto it = items.begin(); it != items.end(); ++it) {
-    if (it->getName() == itemName) {
-      Item found = *it;
+    if ((*it)->getName() == itemName) {
+      auto found = *it;
       items.erase(it); // 从房间移除
       return found;    // 返回物品
     }
   }
-  return std::nullopt; // 没找到
+  return nullptr; // 没找到
 }
 
 void Room::lookItem() const {
   if (!items.empty()) {
     std::cout << "你看到了: ";
     for (const auto &item : items) {
-      std::cout << item.getName() << " ";
+      std::cout << item->getName() << " ";
     }
     std::cout << std::endl;
   } else {

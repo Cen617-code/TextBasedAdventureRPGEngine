@@ -27,9 +27,9 @@ int main() {
   auto ARoom = std::make_shared<Room>("房间 A", "位于客厅北边", 100, 50);
 
   // 2. 初始化物品
-  ARoom->addItem(Item("rusty sword", "一把生锈的剑"));
-  livingRoom->addItem(Item("book", "一本书"));
-  livingRoom->addItem(Item("computer", "一台电脑"));
+  ARoom->addItem(std::make_shared<Weapon>("rusty sword", "一把生锈的剑", 5));
+  livingRoom->addItem(std::make_shared<Consumable>("book", "一本书"));
+  livingRoom->addItem(std::make_shared<Consumable>("computer", "一台电脑"));
 
   // 3. 建立连接
   livingRoom->setExit("north", ARoom);
