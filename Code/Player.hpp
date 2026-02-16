@@ -21,6 +21,7 @@ public:
 
   // 物品交互
   void pickItem(std::string itemName);
+  void dropItem(std::string itemName);
   void showInventory() const;
 
   // 获取当前房间（如果外部还需要直接操作房间）

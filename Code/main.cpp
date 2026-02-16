@@ -28,6 +28,8 @@ int main() {
 
   // 2. 初始化物品
   ARoom->addItem(Item("rusty sword", "一把生锈的剑"));
+  livingRoom->addItem(Item("book", "一本书"));
+  livingRoom->addItem(Item("computer", "一台电脑"));
 
   // 3. 建立连接
   livingRoom->setExit("north", ARoom);
@@ -59,7 +61,9 @@ int main() {
       player.pickItem(target);
     } else if (action == "inventory" || action == "i") {
       player.showInventory();
-    } else {
+    } else if(action == "drop"){
+      player.dropItem(target);
+    }else {
       std::cout << "未知指令。" << std::endl;
     }
   }

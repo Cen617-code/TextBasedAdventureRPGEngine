@@ -1,5 +1,6 @@
 #include "Player.hpp"
 #include <iostream>
+#include <algorithm>
 
 Player::Player(std::string name_, std::shared_ptr<Room> startingRoom)
     : name(name_), currentRoom(startingRoom) {}
@@ -24,6 +25,19 @@ void Player::pickItem(std::string itemName) {
   } else {
     std::cout << "这里没有 " << itemName << "。" << std::endl;
   }
+}
+
+void Player::dropItem(std::string itemName) {
+   for (auto it = inventory.begin(); it != inventory.end(); ++it) {
+    if (it->getName() == itemName) {
+      Item found = *it;
+      inventory.erase(it); // 从背包移除
+      currentRoom->addItem(found);
+      std::cout << "你丢下了" << itemName << std::endl;
+      return;
+    }
+   }
+    std::cout << "背包里没有这个东西" << std::endl;
 }
 
 void Player::showInventory() const {
