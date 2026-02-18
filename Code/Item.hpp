@@ -1,8 +1,8 @@
 #ifndef ITEM_HPP
 #define ITEM_HPP
 
-#include <string>
 #include <iostream>
+#include <string>
 
 class Player;
 
@@ -21,28 +21,33 @@ public:
   std::string getDescription() const;
   void inspect() const;
 
-  virtual void use(Player* player) = 0;
+  virtual void use(Player *player) = 0;
 };
 
 class Weapon : public Item {
 private:
   int damage;
-public:
-  Weapon(std::string name_, std::string describe_, int damage_) : Item(name_, describe_), damage(damage_) {}
 
-  void use(Player* player) override{
-    (void) player;
-    std::cout << "你挥舞着" << getName() << "，造成了" << damage << "点伤害！" << std::endl;
-  }
+public:
+  Weapon(std::string name_, std::string describe_, int damage_)
+      : Item(name_, describe_), damage(damage_) {}
+
+  void use(Player *player) override;
+  int getDamage() const { return damage; }
 };
 
 class Consumable : public Item {
 public:
-  Consumable(std::string name_, std::string description_) : Item(name_, description_) {}
-  void use(Player* player) override{
-    (void) player;
-    std::cout << "你使用了" << getName() << "。感觉好多了！" << std::endl;
-  }
+  Consumable(std::string name_, std::string description_)
+      : Item(name_, description_) {}
+  void use(Player *player) override;
+};
+
+class Key : public Item {
+public:
+  Key(std::string name_, std::string description_)
+      : Item(name_, description_) {}
+  void use(Player *player) override;
 };
 
 #endif

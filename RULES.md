@@ -1,6 +1,6 @@
 Please always speak chinese
 
-这份 `RULES.md` 文档旨在记录我们当前项目的进度、技术架构以及我作为"引导式学习（Guided Learning）"导师的协作模式。你可以将此文件直接导入到其他 AI 平台，确保开发逻辑和教学风格的无缝衔接。
+这份 `RULES.md` 文档旨在记录我们当前项目的进度、技术架构以及我作为"引导式学习（Guided Learning）"导师的协作模式。
 
 ---
 

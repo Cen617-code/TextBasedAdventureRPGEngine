@@ -438,3 +438,83 @@ for (auto it = inventory.begin(); it != inventory.end(); ++it) {
 - [√] 创建了 `Weapon` 和 `Consumable` 子类
 
 **里程碑**：我们的代码架构已经达到了专业 C++ 项目的标准！虽然今天被链接错误和模板报错折磨了一会儿，但我们成功克服了它们！🛡️
+
+---
+---
+
+# 学习笔记 - RPG 引擎开发（核心系统完结篇）
+
+## 📅 日期：2026-02-18
+
+## 🎯 今日目标
+完成 RPG 引擎的所有核心系统，包括属性、战斗、锁机制以及存档功能。
+
+---
+
+## 📚 核心知识点
+
+### 1. 前向声明 (Forward Declaration)
+- **问题**：`Player.hpp` 需要 `Map` 指针，而 `Map.hpp` 需要 `Room`，`Room` 又可能间接引用 `Player`。
+- **解决**：使用 `class Map;` 告诉编译器“有个叫 Map 的类”，而不是直接 `#include "Map.hpp"`，从而打破循环依赖。
+
+### 2. 多态与类型转换 (RTTI)
+- **`dynamic_pointer_cast`**：
+  - 在 `loadFromFile` 中，我们需要判断背包里的物品是不是 `Weapon`，如果是，就需要转换指针类型来赋值给 `equippedWeapon`。
+  - `auto weapon = std::dynamic_pointer_cast<Weapon>(item);`
+
+### 3. 文件 I/O (`fstream`)
+- **`std::ofstream`** (Output File Stream)：用于写文件（存档）。
+- **`std::ifstream`** (Input File Stream)：用于读文件（读档）。
+- **序列化**：将内存中的对象状态（如 `hp=100`, `room="Living Room"`）转换为文本格式存储。
+
+### 4. 游戏平衡与系统设计
+- **数值设计**：确保怪物血量、玩家攻击力、武器加成之间有合理的平衡。
+- **条件逻辑**：锁住的门需要检查背包中是否有特定名字的物品。
+
+---
+
+## 🔨 实现功能模块
+
+### 1. 属性与物品使用
+- 玩家新增 `HP` 和 `Strength`。
+- `Consumable` 类消耗品可以恢复 HP。
+- `Player::useItem` 逻辑增强，支持消耗品移除。
+
+### 2. 地图构建器 (Map Builder)
+- 创建 `Map` 类，将复杂的房间连接和物品放置逻辑从 `main` 函数移出。
+- 提供了 `getRoom(string name)` 方法，支持通过名字查找房间（这对读档至关重要）。
+
+### 3. 锁与钥匙 (Locked Rooms)
+- `Room::Exit` 结构体升级，包含 `locked` 和 `keyName`。
+- 玩家移动时自动检查：如果门锁了 -> 查背包 -> 有钥匙 -> 自动开门。
+
+### 4. 战斗系统 (Combat System)
+- 新增 `Monster` 类。
+- `Room` 类支持容纳怪物。
+- 简单的回合制战斗：玩家攻击 -> 怪物受伤 -> 怪物反击 -> 玩家受伤。
+
+### 5. 武器系统 (Weapon System)
+- `Player::equip` 方法，允许装备武器。
+- 伤害计算公式升级：`Damage = Strength + (Weapon ? WeaponDamage : 0)`。
+
+### 6. 持久化 (Persistence)
+- **Save**: 保存当前房间、HP、力量、背包内容、装备状态。
+- **Load**: 解析存档文件，重建玩家状态，并处理物品所有权的转移。
+
+---
+
+## 🚀 项目总结
+
+在这个项目中，我们从零开始构建了一个基于文本的 RPG 引擎，涵盖了 C++ 面向对象编程的核心概念：
+
+| 模块 | 涉及技术 | 说明 |
+| :--- | :--- | :--- |
+| **场景建模** | `shared_ptr`, `map` | 使用图结构表示房间连接，智能指针管理内存 |
+| **物品系统** | Polymorphism, `vector` | 基类 Item 与派生类 Weapon/Consumable 的多态使用 |
+| **交互逻辑** | `stringstream` | 解析自然语言指令 (go, pick, use, attack) |
+| **游戏循环** | `while(true)` | 标准的 Update-Render 循环 |
+| **持久化** | `fstream` | 简单的文本序列化实现存读档 |
+
+### ✅ 最终成就
+我们不仅仅写了代码，还设计了一个通过控制台互动的世界。玩家可以探索、收集、战斗、成长，并保存他们的进度。这是游戏开发和 C++ 编程的一次完美实践！🎮✨
+

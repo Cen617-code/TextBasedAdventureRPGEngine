@@ -3,25 +3,44 @@
 #include <iostream>
 #include <memory>
 
-
 Room::Room(std::string name_, std::string describe_, int length_, int width_) {
   this->name = name_;
   this->describe = describe_;
   this->length = length_;
   this->width = width_;
+  this->monster = nullptr;
 }
 
-void Room::setExit(std::string direction, std::shared_ptr<Room> nextRoom) {
-  exits[direction] = nextRoom;
+void Room::setExit(std::string direction, std::shared_ptr<Room> nextRoom,
+                   bool locked, std::string keyName) {
+  exits[direction] = {nextRoom, locked, keyName};
 }
 
 std::shared_ptr<Room> Room::getExit(std::string direction) {
-  // map::operator[]
-  // 如果key不存在会创建默认元素，这里为了安全可以改进，但暂时保持原逻辑
   if (exits.count(direction)) {
-    return exits[direction];
+    return exits[direction].room;
   }
   return nullptr;
+}
+
+bool Room::isLocked(std::string direction) const {
+  if (exits.count(direction)) {
+    return exits.at(direction).locked;
+  }
+  return false;
+}
+
+void Room::unlock(std::string direction) {
+  if (exits.count(direction)) {
+    exits[direction].locked = false;
+  }
+}
+
+std::string Room::getKeyName(std::string direction) const {
+  if (exits.count(direction)) {
+    return exits.at(direction).keyName;
+  }
+  return "";
 }
 
 std::string Room::getName() const { return name; }
@@ -51,7 +70,20 @@ std::shared_ptr<Item> Room::popItem(std::string itemName) {
   return nullptr; // 没找到
 }
 
+void Room::removeMonster() { monster = nullptr; }
+
+void Room::setMonster(std::shared_ptr<Monster> m) { monster = m; }
+
+std::shared_ptr<Monster> Room::getMonster() const { return monster; }
+
 void Room::lookItem() const {
+  if (monster) {
+    std::cout << "⚠️  警告！这里有一只 " << monster->getName() << "！"
+              << std::endl;
+    monster->printStatus();
+    std::cout << std::endl;
+  }
+
   if (!items.empty()) {
     std::cout << "你看到了: ";
     for (const auto &item : items) {

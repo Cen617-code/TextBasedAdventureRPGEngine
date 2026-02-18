@@ -21,22 +21,17 @@ std::pair<std::string, std::string> splitCommand(const std::string &input) {
   return {command, argument};
 }
 
+#include "Map.hpp"
+
+// ... splitCommand ...
+
 int main() {
-  // 1. 初始化房间
-  auto livingRoom = std::make_shared<Room>("客厅", "位于中心", 100, 100);
-  auto ARoom = std::make_shared<Room>("房间 A", "位于客厅北边", 100, 50);
+  // 1. 初始化地图
+  Map gameMap;
+  gameMap.buildWorld();
 
-  // 2. 初始化物品
-  ARoom->addItem(std::make_shared<Weapon>("rusty sword", "一把生锈的剑", 5));
-  livingRoom->addItem(std::make_shared<Consumable>("book", "一本书"));
-  livingRoom->addItem(std::make_shared<Consumable>("computer", "一台电脑"));
-
-  // 3. 建立连接
-  livingRoom->setExit("north", ARoom);
-  ARoom->setExit("south", livingRoom);
-
-  // 4. 初始化玩家
-  Player player("Hero", livingRoom);
+  // 2. 初始化玩家
+  Player player("Hero", gameMap.getStartingRoom());
 
   // 初始查看环境
   player.look();
@@ -61,9 +56,17 @@ int main() {
       player.pickItem(target);
     } else if (action == "inventory" || action == "i") {
       player.showInventory();
-    } else if(action == "drop"){
+    } else if (action == "drop") {
       player.dropItem(target);
-    }else {
+    } else if (action == "use") {
+      player.useItem(target);
+    } else if (action == "attack") {
+      player.attack(target);
+    } else if (action == "save") {
+      player.saveToFile("savegame.txt");
+    } else if (action == "load") {
+      player.loadFromFile("savegame.txt", gameMap);
+    } else {
       std::cout << "未知指令。" << std::endl;
     }
   }
